@@ -97,12 +97,7 @@ if (Test-Path "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.e
 }
 ```
 
-### Create Scheduled Task    
-Using the xml blob that was defined earlier, we can now write that out to a file.
-
-```powershell
-$scheduled_task | Out-File "$approot\schedule.xml" -Encoding ascii
-```
+__Note__: You are accepting ARR's EULA with these lines of code.
 
 ### Delete old task
 Delete the old schedule task and also kill any running python tasks to prevent two servers running at once.
@@ -113,7 +108,7 @@ Start-Process -FilePath "taskkill" -ArgumentList "/IM python.exe /F" -Wait
 ```
 
 ### Create new task
-Use the xml to populate a new task and run it.
+Use the xml blob that was downloaded to populate a new task and run it.
 
 ```powershell
 Start-Process -FilePath "schtasks" -ArgumentList "-Create -XML `"$approot\schedule.xml`" -TN `"WebServer`"" -Wait
