@@ -15,8 +15,8 @@ We will begin with writing the script for installing the webrole on the server.
 
 ### Get location of approot
 Whenever you push your code to Azure via webdeploy, Azure will put all your files on a vhd and swap
-the existing vhd on that machine with the new code. Therefore your code's location will alternate
-between `E:\` and `F:\`. With the following script:
+the existing vhd on that machine with the newly pushed code. Therefore your code's location will alternate
+between `E:\` and `F:\`; with the following snippet we are able to find the current location of the project on the remote VM.
 
 ```powershell
 # ConfigureCloudService.ps1
@@ -30,60 +30,35 @@ if (Test-Path "E:\approot\") {
 ```
 
 ### Get Task XML
-This big blob of xml is what's used to create the Scheduled Task.
-I just stored in the powershell script for simplicity's sake.
+This XML blob is the format of what the `schtask` command will read when building a new task. 
 
-```powershell
-# ConfigureCloudService.ps1
-$scheduled_task = "<?xml version=`"1.0`" encoding=`"UTF-16`"?>
+```xml
+<?xml version=`"1.0`" encoding=`"UTF-16`"?>
 <Task version=`"1.4`" xmlns=`"http://schemas.microsoft.com/windows/2004/02/mit/task`">
   <RegistrationInfo>
-    <Date>2016-09-06T20:27:10.2939543</Date>
-    <Author>Norton Pengra</Author>
+    ...
   </RegistrationInfo>
   <Triggers>
-    <BootTrigger>
-      <Enabled>true</Enabled>
-    </BootTrigger>
+    ...
   </Triggers>
   <Principals>
-    <Principal id=`"Author`">
-      <UserId>S-1-5-18</UserId>
-      <RunLevel>LeastPrivilege</RunLevel>
-    </Principal>
+    ...
   </Principals>
   <Settings>
-    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
-    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
-    <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
-    <AllowHardTerminate>true</AllowHardTerminate>
-    <StartWhenAvailable>false</StartWhenAvailable>
-    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
-    <IdleSettings>
-      <StopOnIdleEnd>true</StopOnIdleEnd>
-      <RestartOnIdle>false</RestartOnIdle>
-    </IdleSettings>
-    <AllowStartOnDemand>true</AllowStartOnDemand>
-    <Enabled>true</Enabled>
-    <Hidden>false</Hidden>
-    <RunOnlyIfIdle>false</RunOnlyIfIdle>
-    <DisallowStartOnRemoteAppSession>false</DisallowStartOnRemoteAppSession>
-    <UseUnifiedSchedulingEngine>false</UseUnifiedSchedulingEngine>
-    <WakeToRun>false</WakeToRun>
-    <ExecutionTimeLimit>PT0S</ExecutionTimeLimit>
-    <Priority>7</Priority>
-    <RestartOnFailure>
-      <Interval>PT1M</Interval>
-      <Count>3</Count>
-    </RestartOnFailure>
+    ...
   </Settings>
   <Actions Context=`"Author`">
-    <Exec>
-      <Command>C:\python\python.exe</Command>
-      <Arguments>$approot\manage.py runserver 127.0.0.1:8080</Arguments>
-    </Exec>
+    ...
   </Actions>
-</Task>"
+</Task>
+```
+
+For convenience, this xml blob has been [uploaded](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/resources/schtask_webrole.xml).
+Which allows us to call `Invoke-WebRequest` and replace `{{approot}}` with the correct value.
+
+```powershell
+Invoke-WebRequest "https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/resources/schtask_webrole.xml" -OutFile "$approot\schedule.xml"
+(Get-Content "$approot\schedule.xml") | Foreach-Object {$_ -replace "{{approot}}", $approot} | Out-File "$approot\schedule.xml" -Encoding ascii
 ```
 
 ### Install Python if it's missing
