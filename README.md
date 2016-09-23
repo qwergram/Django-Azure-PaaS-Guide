@@ -67,6 +67,7 @@ Requiring us to download and to install it. In addition, we will also need to ap
 Once we have confirmed that Python exists on the remote VM, we'll run `pip install` and install the required packages for your project.
 
 ```powershell
+# ConfigureCloudService.ps1
 try { 
     # First Test if python is already installed
     Start-Process -FilePath "python" -ArgumentList "-c `"print('hello world')`"" -ErrorAction Stop -Wait
@@ -86,6 +87,7 @@ This code will invoke WebPIC, and install ARR with it. If WebPIC doesn't exist, 
 download it as well.
 
 ```powershell
+# ConfigureCloudService.ps1
 if (Test-Path "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.exe") {
     Start-Process -FilePath "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.exe" -ArgumentList "/Install /Products:ARR /accepteula" -Wait
 } else {
@@ -103,6 +105,7 @@ __Note__: You are accepting ARR's EULA with these lines of code.
 Delete the old schedule task and also kill any running python tasks to prevent two servers running at once.
 
 ```powershell
+# ConfigureCloudService.ps1
 Start-Process -FilePath "schtasks" -ArgumentList "-Delete -TN `"WebServer`" /F" -Wait
 Start-Process -FilePath "taskkill" -ArgumentList "/IM python.exe /F" -Wait
 ```
@@ -111,6 +114,7 @@ Start-Process -FilePath "taskkill" -ArgumentList "/IM python.exe /F" -Wait
 Use the xml blob that was downloaded to populate a new task and run it.
 
 ```powershell
+# ConfigureCloudService.ps1
 Start-Process -FilePath "schtasks" -ArgumentList "-Create -XML `"$approot\schedule.xml`" -TN `"WebServer`"" -Wait
 Start-Process -FilePath "schtasks" -ArgumentList "-Run -TN `"WebServer`"" -Wait
 ```
