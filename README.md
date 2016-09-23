@@ -50,7 +50,28 @@ Start-Process -FilePath "C:\python\Scripts\pip.exe" -ArgumentList "install -r $a
 Note that this installs Python 3.5.2, however you are free to install whatever version you want.
 
 
-### 3. Get Task XML
+### 3. Install Reverse Proxy
+ARR by default isn't installed on IIS 8, so we'll need to download it and install it.
+This code will invoke WebPIC, and install ARR with it. If WebPIC doesn't exist, it will
+download it as well.
+
+```powershell
+# ConfigureCloudService.ps1
+if (Test-Path "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.exe") {
+    Start-Process -FilePath "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.exe" -ArgumentList "/Install /Products:ARR /accepteula" -Wait
+} else {
+    # Install webpi
+    Invoke-WebRequest "https://go.microsoft.com/fwlink/?linkid=226239" -OutFile "$approot\install_webpi.msi"
+    Start-Process -FilePath "msiexec" -ArgumentList "/i install_webpi.msi /quiet ADDLOCAL=ALL" -Wait
+    # Install ARR
+    Start-Process -FilePath "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.exe" -ArgumentList "/Install /Products:ARR /accepteula" -Wait
+}
+```
+
+__Note__: You are accepting ARR's EULA with these lines of code.
+
+
+### 4. Get Task XML
 This XML blob is the format of what the `schtask` command will read when building a new task. 
 
 ```xml
@@ -82,26 +103,6 @@ Invoke-WebRequest "https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-
 (Get-Content "$approot\schedule.xml") | Foreach-Object {$_ -replace "{{approot}}", $approot} | Out-File "$approot\schedule.xml" -Encoding ascii
 ```
 
-### 4. Install Reverse Proxy
-ARR by default isn't installed on IIS 8, so we'll need to download it and install it.
-This code will invoke WebPIC, and install ARR with it. If WebPIC doesn't exist, it will
-download it as well.
-
-```powershell
-# ConfigureCloudService.ps1
-if (Test-Path "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.exe") {
-    Start-Process -FilePath "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.exe" -ArgumentList "/Install /Products:ARR /accepteula" -Wait
-} else {
-    # Install webpi
-    Invoke-WebRequest "https://go.microsoft.com/fwlink/?linkid=226239" -OutFile "$approot\install_webpi.msi"
-    Start-Process -FilePath "msiexec" -ArgumentList "/i install_webpi.msi /quiet ADDLOCAL=ALL" -Wait
-    # Install ARR
-    Start-Process -FilePath "$env:ProgramFiles\microsoft\web platform installer\WebpiCmd-x64.exe" -ArgumentList "/Install /Products:ARR /accepteula" -Wait
-}
-```
-
-__Note__: You are accepting ARR's EULA with these lines of code.
-
 ### 5. Delete old task
 Delete the old schedule task and also kill any running python tasks to prevent two servers running at once.
 
@@ -123,11 +124,7 @@ Start-Process -FilePath "schtasks" -ArgumentList "-Run -TN `"WebServer`"" -Wait
 ## Write Deployment Script for Worker role
 
 A lot of the existing script we wrote for Webrole can be recycled, the only difference is the name and url of the xml blob.
-So from the webrole's `ConfigureCloudService.ps1`, you can copy:
-
-- Step 1
-- Step 2
-
+So from the webrole's `ConfigureCloudService.ps1`, you can copy the first two steps.
 
 
 ### Get location of approot
