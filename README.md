@@ -61,20 +61,24 @@ Invoke-WebRequest "https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-
 (Get-Content "$approot\schedule.xml") | Foreach-Object {$_ -replace "{{approot}}", $approot} | Out-File "$approot\schedule.xml" -Encoding ascii
 ```
 
-### Install Python if it's missing
-Windows machines, unlike every other Unix machine, don't come pre-installed with Python.
-So we'll have to install it manually. This script will also append it to the system path.
+### Install Python and Required Packages
+Windows machines, unlike their Unix counterparts, don't come pre-installed with Python.
+Requiring us to download and to install it. In addition, we will also need to append it to the system path.
+Once we have confirmed that Python exists on the remote VM, we'll run `pip install` and install the required packages for your project.
 
 ```powershell
-try {
+try { 
+    # First Test if python is already installed
     Start-Process -FilePath "python" -ArgumentList "-c `"print('hello world')`"" -ErrorAction Stop -Wait
 } catch {
+    # Download it if it doesn't
     Invoke-WebRequest "https://www.python.org/ftp/python/3.5.2/python-3.5.2.exe" -OutFile "$approot\install_python.exe"
     Start-Process -FilePath "$approot\install_python.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1 DefaultAllUsersTargetDir=`"C:\\python\\`"" -Wait
-    Start-Process -FilePath "C:\python\Scripts\pip.exe" -ArgumentList "install -r $approot\requirements.txt" -Wait
 }
-
+Start-Process -FilePath "C:\python\Scripts\pip.exe" -ArgumentList "install -r $approot\requirements.txt" -Wait
 ```
+
+Note that this installs Python 3.5.2, however you are free to install whatever version you want.
 
 ### Install Reverse Proxy
 ARR by default isn't installed on IIS 8, so we'll need to download it and install it.
