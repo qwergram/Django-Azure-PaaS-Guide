@@ -54,7 +54,7 @@ This XML blob is the format of what the `schtask` command will read when buildin
 ```
 
 For convenience, this xml blob has been [uploaded](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/resources/schtask_webrole.xml).
-Which allows us to call `Invoke-WebRequest` and replace `{{approot}}` with the correct value.
+This allows us to call `Invoke-WebRequest`, write the contents to the disk and edit the contents as neccesary. In our case, we will only need to replace `{{approot}}` with the correct value.
 
 ```powershell
 Invoke-WebRequest "https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/resources/schtask_webrole.xml" -OutFile "$approot\schedule.xml"
