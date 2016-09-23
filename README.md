@@ -152,4 +152,41 @@ Your next step is actually deploying from Visual Studio. Unfortunately, there is
 set the rules manually.
 
 
- 
+### 1. Publish
+Like with any other Azure Service, publish it.
+
+![](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/imgs/publish.png)
+
+![](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/imgs/deploymentprocess.png)
+
+
+### 2. RDC in
+Once it's complete, head over to [Azure](http://portal.azure.com) and download the RDP file.
+
+![](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/imgs/azure_rdcwebrole.png)
+
+### 3. Create rules
+
+Open `run` with `Winkey + R` and run `inetmgr`. In the window that opens, navigate to your current site
+and click on the "URL Rewrite" icon.
+
+![](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/imgs/rmvm_urlrewrite.png)
+
+### 4. Clear existing rules
+
+In the new window, delete all existing rules and on the right, add your own.
+
+![](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/imgs/rmvm_addrule.png)
+
+### 5. Add Reverse Proxy Rule
+
+In the new window, select the "Reverse Proxy" option.
+
+![](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/imgs/rmvm_addrule2.png)
+
+
+### 6. Specify Address
+
+Specify the address `localhost:8080`, which is where the [`schtask`](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/schtask_webrole.xml#L46) will spawn the Python Django web server. 
+
+![](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/imgs/rmvm_addrule3.png)
