@@ -126,43 +126,16 @@ Start-Process -FilePath "schtasks" -ArgumentList "-Run -TN `"WebServer`"" -Wait
 A lot of the existing script we wrote for Webrole can be recycled, the only difference is the name and url of the xml blob.
 So from the webrole's `ConfigureCloudService.ps1`, you can copy the first two steps.
 
-
-### Get location of approot
-Much like the webrole, we'll need to walk through retrieving the approot location and setting the XML blob again.
-
-### Get Task XML
-The only difference here is the `<Arguments>$approot\worker.py</Arguments>` line.
+### 3. Get Task XML
+The only difference here is the [url](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/schtask_workrole.xml) of the Web Request.
 
 ```powershell
-# ConfigureCloudService.ps1
-$scheduled_task = "<?xml version=`"1.0`" encoding=`"UTF-16`"?>
-  ... same lines from webrole ...
-  <Actions Context=`"Author`">
-    <Exec>
-      <Command>C:\python\python.exe</Command>
-      <Arguments>$approot\worker.py</Arguments>
-    </Exec>
-  </Actions>
-</Task>"
+Invoke-WebRequest "https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/resources/schtask_workrole.xml" -OutFile "$approot\schedule.xml"
+(Get-Content "$approot\schedule.xml") | Foreach-Object {$_ -replace "{{approot}}", $approot} | Out-File "$approot\schedule.xml" -Encoding ascii
 ```
 
-### Install Python if it's missing
-Again, like the Webrole machine, windows machines don't come pre-installed with Python.
-So we'll have to install it manually. This script will also append it to the system path.
-
-```powershell
-# ConfigureCloudService.ps1
-try {
-    Start-Process -FilePath "python" -ArgumentList "-c `"print('hello world')`"" -ErrorAction Stop -Wait
-} catch {
-    Invoke-WebRequest "https://www.python.org/ftp/python/3.5.2/python-3.5.2.exe" -OutFile "$approot\install_python.exe"
-    Start-Process -FilePath "$approot\install_python.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1 DefaultAllUsersTargetDir=`"C:\\python\\`"" -Wait
-    Start-Process -FilePath "C:\python\Scripts\pip.exe" -ArgumentList "install -r $approot\requirements.txt" -Wait
-}
-```
-
-### Schedule a task
-We're going to schedule a task again using the xml we defined above.
+### 4. Terminate old Task and Schedule a new Task
+Much like the web role, use `schtask` to import our xml blob as a task.
 
 ```powershell
 # Launch workerrole everytime on boot up
