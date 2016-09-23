@@ -190,3 +190,8 @@ In the new window, select the "Reverse Proxy" option.
 Specify the address `localhost:8080`, which is where the [`schtask`](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/schtask_webrole.xml#L46) will spawn the Python Django web server. 
 
 ![](https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/imgs/rmvm_addrule3.png)
+
+# Conclusion
+
+We have covered how to deploy Django projects to IIS using a Reverse Proxy, while it's not as automated as nginx, Python is still relatively new to the Windows world and the team is working hard to
+make combination of the two as seamless as possible. If you have any feedback, please don't hesitate to contact me personally at v-nopeng@microsoft.com.
