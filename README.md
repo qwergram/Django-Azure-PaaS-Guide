@@ -1,25 +1,17 @@
 # Deploying Django Projects on Azure Cloud Services
 
-In IIS, the "right" approach would be configuring [fcgi to work with Django](https://pypi.org/project/wfastcgi/). 
-Another approach would be to do a [reverse proxy](https://www.nginx.com/resources/admin-guide/reverse-proxy/), which requires a little more
-work in IIS than nginx. 
+In this topic, we will be covering on how to deploy Python Django projects to Azure Cloud Services. These docs assume that you are familiar with Python, 
+Powershell, Azure's Dashboard and Windows. These docs also assume that you are using Visual Studio on Windows 10.
 
-First of all, note that the scripts that Visual Studio generates (as of Sept 2016) are all "suggestions" and don't
-work as of right now. Therefore under `DjangoWebRole\bin\` you'll find `ps.cmd` and `ConfigureCloudService.ps1`. 
-Open up the powershell script and delete everything inside of it.
+In IIS, the "right" approach would be configuring [fcgi to work with Django](https://pypi.org/project/wfastcgi/). However for nginx users that aren't used to that approach,
+they'll be happy to know that another approach would be to do a [reverse proxy](https://www.nginx.com/resources/admin-guide/reverse-proxy/). In this walk through, we will
+go over automating as much as possible.
+
+To begin, open up your Python Cloud Service App in Visual Studio and navigate the `bin` directory of each role. 
+Locate `ConfigureCloudService.ps1` and clear their contents. We will build a custom script.
 
 ## Write Deployment Script for webrole
-
-You can then copy the following powershell script and place it in `DjangoWebRole\bin\ConfigureCloudService.ps1`.
-
-### Download Python
-### Install Web Package Installer
-### Install ARR with Web Package Installer
-ARR is what allows a reverse proxy, which allows us to run the django server on
-`localhost` and we can serve it to the public with a stronger web server, much like nginx.
-### Create a new Task with `schtasks`
-You'll want your local django server to run on boot up. So we'll schedule a task to do it.
-
+We will begin with writing the script for installing the webrole on the server.
 
 ### Get location of approot
 Whenever you push your code to Azure via webdeploy, Azure will put all your files on a vhd and swap
@@ -209,4 +201,4 @@ Start-Process -FilePath "schtasks" -ArgumentList "-Run -TN `"WebServer`"" -Wait
 ```
 
 ## Conclusion
-You should have two powershell files for the [worker role]() and [web role](). Run through the usual 
+You should have two powershell files for the [worker role](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/workerrolescript.ps1) and [web role](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/webrolescript.ps1). Run through the usual 
