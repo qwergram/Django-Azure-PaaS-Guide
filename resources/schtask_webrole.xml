@@ -43,7 +43,7 @@
   <Actions Context=`"Author`">
     <Exec>
       <Command>C:\python\python.exe</Command>
-      <Arguments>$approot\manage.py runserver 127.0.0.1:8080</Arguments>
+      <Arguments>{{approot}}\manage.py runserver 127.0.0.1:8080</Arguments>
     </Exec>
   </Actions>
 </Task>
