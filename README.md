@@ -140,12 +140,16 @@ Much like the web role, use `schtask` to import our xml blob as a task.
 
 ```powershell
 # ConfigureCloudService.ps1
-Start-Process -FilePath "schtasks" -ArgumentList "-Delete -TN `"WebServer`" /F" -Wait
+Start-Process -FilePath "schtasks" -ArgumentList "-Delete -TN `"WorkerRole`" /F" -Wait
 Start-Process -FilePath "taskkill" -ArgumentList "/IM python.exe /F" -Wait
-Start-Process -FilePath "schtasks" -ArgumentList "-Create -XML `"$approot\schedule.xml`" -TN `"WebServer`"" -Wait
-Start-Process -FilePath "schtasks" -ArgumentList "-Run -TN `"WebServer`"" -Wait
+Start-Process -FilePath "schtasks" -ArgumentList "-Create -XML `"$approot\schedule.xml`" -TN `"WorkerRole`"" -Wait
+Start-Process -FilePath "schtasks" -ArgumentList "-Run -TN `"WorkerRole`"" -Wait
 ```
 
-## Conclusion
+## Create Reverse Proxy Rules
 You should have tw powershell files for the [worker role](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/workerrolescript.ps1) and [web role](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/webrolescript.ps1). 
-Your next step is actually deploying from Visual Studio. 
+Your next step is actually deploying from Visual Studio. Unfortunately, there is one step that is unable to be automated: creating the Reverse Proxy rules. You will have to RDC to your machine and
+set the rules manually.
+
+
+ 
