@@ -130,6 +130,7 @@ So from the webrole's `ConfigureCloudService.ps1`, you can copy the first two st
 The only difference here is the [url](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/schtask_workrole.xml) of the Web Request.
 
 ```powershell
+# ConfigureCloudService.ps1
 Invoke-WebRequest "https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-Guide/master/resources/schtask_workrole.xml" -OutFile "$approot\schedule.xml"
 (Get-Content "$approot\schedule.xml") | Foreach-Object {$_ -replace "{{approot}}", $approot} | Out-File "$approot\schedule.xml" -Encoding ascii
 ```
@@ -138,8 +139,7 @@ Invoke-WebRequest "https://raw.githubusercontent.com/qwergram/Django-Azure-PaaS-
 Much like the web role, use `schtask` to import our xml blob as a task.
 
 ```powershell
-# Launch workerrole everytime on boot up
-$scheduled_task | Out-File "C:\schedule.xml" -Encoding ascii
+# ConfigureCloudService.ps1
 Start-Process -FilePath "schtasks" -ArgumentList "-Delete -TN `"WebServer`" /F" -Wait
 Start-Process -FilePath "taskkill" -ArgumentList "/IM python.exe /F" -Wait
 Start-Process -FilePath "schtasks" -ArgumentList "-Create -XML `"$approot\schedule.xml`" -TN `"WebServer`"" -Wait
@@ -147,4 +147,5 @@ Start-Process -FilePath "schtasks" -ArgumentList "-Run -TN `"WebServer`"" -Wait
 ```
 
 ## Conclusion
-You should have two powershell files for the [worker role](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/workerrolescript.ps1) and [web role](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/webrolescript.ps1). Run through the usual 
+You should have tw powershell files for the [worker role](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/workerrolescript.ps1) and [web role](https://github.com/qwergram/Django-Azure-PaaS-Guide/blob/master/resources/webrolescript.ps1). 
+Your next step is actually deploying from Visual Studio. 
